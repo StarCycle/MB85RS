@@ -12,8 +12,8 @@
   
  */
  
-#ifndef MB85RS256A_H
-#define MB85RS256A_H
+#ifndef MB85RS_H
+#define MB85RS_H
 
 #include <Energia.h>
 #include <driverlib.h>
@@ -35,15 +35,15 @@
 
 #define MEM_SIZE   0x8000	//Memory size
 
-class FRAM
+class MB85RS
 {
 protected:
 	DSPI &line;
 	unsigned char CSpin;
 	
 public:
-	FRAM(DSPI &spi, unsigned char pin);
-	virtual ~FRAM( ) {};
+	MB85RS(DSPI &spi, unsigned char pin);
+	virtual ~MB85RS( ) {};
 		
 	void init();
 	void write_Enable();
@@ -58,4 +58,4 @@ private:
 
 };
 
-#endif	// MB85RS256A_H
+#endif	// MB85RS_H

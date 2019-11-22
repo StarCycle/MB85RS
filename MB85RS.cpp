@@ -1,8 +1,8 @@
 /* Code written by Chia Jiun Wei @ 24 Jul 2017
  * <J.W.Chia@tudelft.nl>
  
- * MB85RS256A: a library to provide high level APIs to interface  
- * with the Fujitsu FRAM. It is possible to use this library in
+ * MB85RS: a library to provide high level APIs to interface  
+ * with the Fujitsu MB85RS. It is possible to use this library in
  * Energia (the Arduino port for MSP microcontrollers) or in 
  * other toolchains.
  
@@ -12,56 +12,56 @@
   
  */
  
-#include "MB85RS256A.h"
+#include "MB85RS.h"
   
-/**  MB85RS256A FRAM class creator function
+/**  MB85RS class creator function
  *
  *   Parameters:
  *   DSPI &spi             SPI object
  *	 unsigned char pin	   Chip select GPIO pin
  *
  */
-FRAM::FRAM(DSPI &spi, unsigned char pin): line(spi)
+MB85RS::MB85RS(DSPI &spi, unsigned char pin): line(spi)
 {
 	CSpin = pin;
 }
 
-/**  Initialise FRAM
+/**  Initialise MB85RS
  *	 Both memory blocks and status register are initialise to be unprotected
  *
  */
-void FRAM::init()
+void MB85RS::init()
 {	
 	pinMode(CSpin, OUTPUT);
 	write_Disable();	
 }
 
-/**  Enable data writing in FRAM memory space
+/**  Enable data writing in MB85RS memory space
  *
  */
-void FRAM::write_Enable()
+void MB85RS::write_Enable()
 {	
 	digitalWrite(CSpin, LOW);
 	line.transfer(WREN); 
 	digitalWrite(CSpin, HIGH);
 }
 
-/**  Disable data writing in FRAM memory space
+/**  Disable data writing in MB85RS memory space
  *
  */
-void FRAM::write_Disable()
+void MB85RS::write_Disable()
 {	
 	digitalWrite(CSpin, LOW);
 	line.transfer(WRDI); 
 	digitalWrite(CSpin, HIGH);
 }
 
-/**  Returns content of FRAM status register
+/**  Returns content of MB85RS status register
  *
  *	 Returns
  * 	 unsigned char         status register value
  */
-unsigned char FRAM::read_Status()
+unsigned char MB85RS::read_Status()
 {	
 	unsigned char ret;
 	digitalWrite(CSpin, LOW);
@@ -71,12 +71,12 @@ unsigned char FRAM::read_Status()
 	return ret;
 }
 
-/**  writes in FRAM status register
+/**  writes in MB85RS status register
  *
  *	 Parameter
  * 	 char val         status register value
  */
-void FRAM::write_Status(char val)
+void MB85RS::write_Status(char val)
 {
 	write_Enable();
 	digitalWrite(CSpin, LOW);
@@ -94,7 +94,7 @@ void FRAM::write_Status(char val)
  *   unsigned int size			total number of bytes
  *
  */
-void FRAM::read(unsigned int address, char *buffer, unsigned int size)
+void MB85RS::read(unsigned int address, char *buffer, unsigned int size)
 {  
 	digitalWrite(CSpin, LOW);
 	line.transfer(READ);
@@ -115,7 +115,7 @@ void FRAM::read(unsigned int address, char *buffer, unsigned int size)
  *   unsigned int size			total number of bytes
  *
  */
-void FRAM::write(unsigned int address, char *buffer, unsigned int size)
+void MB85RS::write(unsigned int address, char *buffer, unsigned int size)
 {
 	write_Enable();
 	digitalWrite(CSpin, LOW);
@@ -134,7 +134,7 @@ void FRAM::write(unsigned int address, char *buffer, unsigned int size)
 /**  flush whole data memory and resets status reg
  *
  */
-void FRAM::erase_All()
+void MB85RS::erase_All()
 {  
 	write_Status(0x00);
 	write_Enable();
