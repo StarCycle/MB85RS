@@ -90,20 +90,19 @@ void FRAM::write_Status(char val)
  *
  *	 Parameters
  * 	 unsigned int address       start address
- *   void *Ptr					variable pointer
+ *   char *buffer				buffer
  *   unsigned int size			total number of bytes
  *
  */
-void FRAM::read(unsigned int address, void *Ptr, unsigned int size)
+void FRAM::read(unsigned int address, char *buffer, unsigned int size)
 {  
-	char *charPtr = static_cast<char*>(Ptr);
 	digitalWrite(CSpin, LOW);
 	line.transfer(READ);
 	line.transfer((char)(address >> 8));
 	line.transfer((char)address);
   
 	for (unsigned int i = 0; i < size; i++)
-		*(charPtr + i) = line.transfer(0x00);
+		*(buffer + i) = line.transfer(0x00);
 
 	digitalWrite(CSpin, HIGH);
 }
@@ -112,13 +111,12 @@ void FRAM::read(unsigned int address, void *Ptr, unsigned int size)
  *
  *	 Parameters
  * 	 unsigned int address       start address
- *   void *Ptr					variable pointer
+ *   char *buffer				buffer
  *   unsigned int size			total number of bytes
  *
  */
-void FRAM::write(unsigned int address, void *Ptr, unsigned int size)
-{	
-	char *charPtr = static_cast<char*>(Ptr);
+void FRAM::write(unsigned int address, char *buffer, unsigned int size)
+{
 	write_Enable();
 	digitalWrite(CSpin, LOW);
 	line.transfer(WRITE);
@@ -126,7 +124,7 @@ void FRAM::write(unsigned int address, void *Ptr, unsigned int size)
 	line.transfer((char)address);
 
 	for (unsigned int i = 0; i < size; i++)
-		line.transfer(*(charPtr + i));
+		line.transfer(*(buffer + i));
 	
 	digitalWrite(CSpin, HIGH);
 	write_Disable();

@@ -11,7 +11,7 @@
 
 DSPI master;          // used EUSCI_B0
 FRAM fram1(master, 2);   //initalise FRAM, Conect CS to pin 2 of MSP432 launchpad
-
+        
 unsigned char stat;
 
 //OBC non-volatile parameter
@@ -24,8 +24,11 @@ short T_Batt_threshold;
 short T_Amp_threshold;
 unsigned short activation_threshold;
 
+//FRAM buffer
+char buffer[25];
+
 void setup()
-{
+{ 
   // initialize the UART
   Serial.begin(115200);
   delay(300);
@@ -90,29 +93,48 @@ void setup()
 
 void loop()
 {
+  memcpy(&buffer[0], &reset_count, 2);
+  memcpy(&buffer[2], &uptime_total, 4);
+  memcpy(&buffer[6], init_time, 8);
+  memcpy(&buffer[14],&frame_counter, 4);
+  memcpy(&buffer[18], &V_Batt_threshold, 2);
+  memcpy(&buffer[20], &T_Batt_threshold, 2);
+  memcpy(&buffer[22], &T_Amp_threshold, 2);
+  memcpy(&buffer[24], &activation_threshold, 2);
+
+  delay(300);
   Serial.print("Writing parameters to FRAM");
   Serial.println();
-
-  fram1.write(0x00, &reset_count, 2);
-  fram1.write(0x02, &uptime_total, 4);
-  fram1.write(0x06, init_time, 8);
-  fram1.write(0x14, &frame_counter, 4);
-  fram1.write(0x18, &V_Batt_threshold, 2);
-  fram1.write(0x20, &T_Batt_threshold, 2);
-  fram1.write(0x22, &T_Amp_threshold, 2);
-  fram1.write(0x24, &activation_threshold, 2);
+  
+  fram1.write(0x00, &buffer[0], 2);
+  fram1.write(0x02, &buffer[2], 4);
+  fram1.write(0x06, &buffer[6], 8);
+  fram1.write(0x14, &buffer[14], 4);
+  fram1.write(0x18, &buffer[18], 2);
+  fram1.write(0x20, &buffer[20], 2);
+  fram1.write(0x22, &buffer[22], 2);
+  fram1.write(0x24, &buffer[24], 2);  
 
   Serial.print("Reading parameters from FRAM");
   Serial.println();
+  
+  fram1.read(0x00, &buffer[0], 2);  
+  fram1.read(0x02, &buffer[2], 4);  
+  fram1.read(0x06, &buffer[6], 8);  
+  fram1.read(0x14, &buffer[14], 4);  
+  fram1.read(0x18, &buffer[18], 2);
+  fram1.read(0x20, &buffer[20], 2);  
+  fram1.read(0x22, &buffer[22], 2);
+  fram1.read(0x24, &buffer[24], 2);
 
-  fram1.read(0x00, &reset_count, 2);
-  fram1.read(0x02, &uptime_total, 4);
-  fram1.read(0x06, init_time, 8);
-  fram1.read(0x14, &frame_counter, 4);
-  fram1.read(0x18, &V_Batt_threshold, 2);
-  fram1.read(0x20, &T_Batt_threshold, 2);
-  fram1.read(0x22, &T_Amp_threshold, 2);
-  fram1.read(0x24, &activation_threshold, 2);
+  memcpy(&reset_count, &buffer[0], 2);
+  memcpy(&uptime_total, &buffer[2], 4);
+  memcpy(init_time, &buffer[6], 8);
+  memcpy(&frame_counter, &buffer[14], 4);
+  memcpy(&V_Batt_threshold, &buffer[18], 2);
+  memcpy(&T_Batt_threshold, &buffer[20], 2);
+  memcpy(&T_Amp_threshold, &buffer[22], 2);
+  memcpy(&activation_threshold, &buffer[24], 2);
 
   Serial.print("**** FRAM Parameters ****");
   Serial.println();
@@ -143,15 +165,23 @@ void loop()
 
   Serial.print("Reading erased parameters from FRAM");
   Serial.println();
+  fram1.read(0x00, &buffer[0], 2);
+  fram1.read(0x02, &buffer[2], 4);
+  fram1.read(0x06, &buffer[6], 8);
+  fram1.read(0x14, &buffer[14], 4);
+  fram1.read(0x18, &buffer[18], 2);
+  fram1.read(0x20, &buffer[20], 2);
+  fram1.read(0x22, &buffer[22], 2);
+  fram1.read(0x24, &buffer[24], 2);
 
-  fram1.read(0x00, &reset_count, 2);
-  fram1.read(0x02, &uptime_total, 4);
-  fram1.read(0x06, init_time, 8);
-  fram1.read(0x14, &frame_counter, 4);
-  fram1.read(0x18, &V_Batt_threshold, 2);
-  fram1.read(0x20, &T_Batt_threshold, 2);
-  fram1.read(0x22, &T_Amp_threshold, 2);
-  fram1.read(0x24, &activation_threshold, 2);
+  memcpy(&reset_count, &buffer[0], 2);
+  memcpy(&uptime_total, &buffer[2], 4);
+  memcpy(init_time, &buffer[6], 8);
+  memcpy(&frame_counter, &buffer[14], 4);
+  memcpy(&V_Batt_threshold, &buffer[18], 2);
+  memcpy(&T_Batt_threshold, &buffer[20], 2);
+  memcpy(&T_Amp_threshold, &buffer[22], 2);
+  memcpy(&activation_threshold, &buffer[24], 2);
 
   Serial.print("**** Erased FRAM Parameters ****");
   Serial.println();
@@ -192,29 +222,45 @@ void loop()
   T_Amp_threshold = 40;
   activation_threshold = 2100;
 
+  memcpy(&buffer[0], &reset_count, 2);
+  memcpy(&buffer[2], &uptime_total, 4);
+  memcpy(&buffer[6], init_time, 8);
+  memcpy(&buffer[14],&frame_counter, 4);
+  memcpy(&buffer[18], &V_Batt_threshold, 2);
+  memcpy(&buffer[20], &T_Batt_threshold, 2);
+  memcpy(&buffer[22], &T_Amp_threshold, 2);
+  memcpy(&buffer[24], &activation_threshold, 2);
+
   Serial.print("Writing parameters to FRAM");
   Serial.println();
-
-  fram1.write(0x00, &reset_count, 2);
-  fram1.write(0x02, &uptime_total, 4);
-  fram1.write(0x06, init_time, 8);
-  fram1.write(0x14, &frame_counter, 4);
-  fram1.write(0x18, &V_Batt_threshold, 2);
-  fram1.write(0x20, &T_Batt_threshold, 2);
-  fram1.write(0x22, &T_Amp_threshold, 2);
-  fram1.write(0x24, &activation_threshold, 2);
+  fram1.write(0x00, &buffer[0], 2);
+  fram1.write(0x02, &buffer[2], 4);
+  fram1.write(0x06, &buffer[6], 8);
+  fram1.write(0x14, &buffer[14], 4);
+  fram1.write(0x18, &buffer[18], 2);
+  fram1.write(0x20, &buffer[20], 2);
+  fram1.write(0x22, &buffer[22], 2);
+  fram1.write(0x24, &buffer[24], 2);
 
   Serial.print("Reading parameters from FRAM");
   Serial.println();
+  fram1.read(0x00, &buffer[0], 2);
+  fram1.read(0x02, &buffer[2], 4);
+  fram1.read(0x06, &buffer[6], 8);
+  fram1.read(0x14, &buffer[14], 4);
+  fram1.read(0x18, &buffer[18], 2);
+  fram1.read(0x20, &buffer[20], 2);
+  fram1.read(0x22, &buffer[22], 2);
+  fram1.read(0x24, &buffer[24], 2);
 
-  fram1.read(0x00, &reset_count, 2);
-  fram1.read(0x02, &uptime_total, 4);
-  fram1.read(0x06, init_time, 8);
-  fram1.read(0x14, &frame_counter, 4);
-  fram1.read(0x18, &V_Batt_threshold, 2);
-  fram1.read(0x20, &T_Batt_threshold, 2);
-  fram1.read(0x22, &T_Amp_threshold, 2);
-  fram1.read(0x24, &activation_threshold, 2);
+  memcpy(&reset_count, &buffer[0], 2);
+  memcpy(&uptime_total, &buffer[2], 4);
+  memcpy(init_time, &buffer[6], 8);
+  memcpy(&frame_counter, &buffer[14], 4);
+  memcpy(&V_Batt_threshold, &buffer[18], 2);
+  memcpy(&T_Batt_threshold, &buffer[20], 2);
+  memcpy(&T_Amp_threshold, &buffer[22], 2);
+  memcpy(&activation_threshold, &buffer[24], 2);
 
   Serial.print("**** FRAM Parameters ****");
   Serial.println();
