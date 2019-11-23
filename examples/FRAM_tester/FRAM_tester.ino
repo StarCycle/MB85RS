@@ -7,11 +7,14 @@
     P6.0 - > FRAM CS, define P6.0 as SPI chip select
 */
 
-#include "MB85RS256A.h"
+#include "MB85RS.h"
+#include "DSerial.h"
+#include "DSPI.h"
 
 DSPI master;          // used EUSCI_B0
-FRAM fram1(master, 2);   //initalise FRAM, Conect CS to pin 2 of MSP432 launchpad
-        
+MB85RS fram1(master, GPIO_PORT_P1, GPIO_PIN0);   //initialize FRAM, Connect CS to pin 2 of MSP432 launchpad
+DSerial serial;
+
 unsigned char stat;
 
 //OBC non-volatile parameter
@@ -25,31 +28,31 @@ short T_Amp_threshold;
 unsigned short activation_threshold;
 
 //FRAM buffer
-char buffer[25];
+unsigned char buffer[25];
 
 void setup()
 { 
   // initialize the UART
-  Serial.begin(115200);
+  serial.begin();
   delay(300);
 
   // initialise SPI:
   master.begin();
   delay(300);
 
-  Serial.print("**** Start FRAM test ****");
-  Serial.println();
+  serial.print("**** Start FRAM test ****");
+  serial.println();
 
   //initalise FRAM
   fram1.init();
-  Serial.print("FRAM initialised ****");
-  Serial.println();
+  serial.print("FRAM initialised ****");
+  serial.println();
 
   //Read status
   stat = fram1.read_Status();
-  Serial.print("Value of status register: ");
-  Serial.print(stat, DEC);
-  Serial.println();
+  serial.print("Value of status register: ");
+  serial.print(stat, DEC);
+  serial.println();
 
   reset_count = 10;
   uptime_total = 33600;
@@ -67,28 +70,28 @@ void setup()
   T_Amp_threshold = 40;
   activation_threshold = 2100;
 
-  Serial.print("**** Defined Parameters ****");
-  Serial.println();
-  Serial.print(reset_count, DEC);
-  Serial.println();
-  Serial.print(uptime_total, DEC);
-  Serial.println();
+  serial.print("**** Defined Parameters ****");
+  serial.println();
+  serial.print(reset_count, DEC);
+  serial.println();
+  serial.print(uptime_total, DEC);
+  serial.println();
   for (int i = 0; i < 8; i++)
   {
-    Serial.print(init_time[i], DEC);
-    Serial.print(" ");
+    serial.print(init_time[i], DEC);
+    serial.print(" ");
   }
-  Serial.println();
-  Serial.print(frame_counter, DEC);
-  Serial.println();
-  Serial.print(V_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Amp_threshold, DEC);
-  Serial.println();
-  Serial.print(activation_threshold, DEC);
-  Serial.println();
+  serial.println();
+  serial.print(frame_counter, DEC);
+  serial.println();
+  serial.print(V_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Amp_threshold, DEC);
+  serial.println();
+  serial.print(activation_threshold, DEC);
+  serial.println();
 }
 
 void loop()
@@ -103,8 +106,8 @@ void loop()
   memcpy(&buffer[24], &activation_threshold, 2);
 
   delay(300);
-  Serial.print("Writing parameters to FRAM");
-  Serial.println();
+  serial.print("Writing parameters to FRAM");
+  serial.println();
   
   fram1.write(0x00, &buffer[0], 2);
   fram1.write(0x02, &buffer[2], 4);
@@ -115,8 +118,8 @@ void loop()
   fram1.write(0x22, &buffer[22], 2);
   fram1.write(0x24, &buffer[24], 2);  
 
-  Serial.print("Reading parameters from FRAM");
-  Serial.println();
+  serial.print("Reading parameters from FRAM");
+  serial.println();
   
   fram1.read(0x00, &buffer[0], 2);  
   fram1.read(0x02, &buffer[2], 4);  
@@ -136,35 +139,35 @@ void loop()
   memcpy(&T_Amp_threshold, &buffer[22], 2);
   memcpy(&activation_threshold, &buffer[24], 2);
 
-  Serial.print("**** FRAM Parameters ****");
-  Serial.println();
-  Serial.print(reset_count, DEC);
-  Serial.println();
-  Serial.print(uptime_total, DEC);
-  Serial.println();
+  serial.print("**** FRAM Parameters ****");
+  serial.println();
+  serial.print(reset_count, DEC);
+  serial.println();
+  serial.print(uptime_total, DEC);
+  serial.println();
   for (int i = 0; i < 8; i++)
   {
-    Serial.print(init_time[i], DEC);
-    Serial.print(" ");
+    serial.print(init_time[i], DEC);
+    serial.print(" ");
   }
-  Serial.println();
-  Serial.print(frame_counter, DEC);
-  Serial.println();
-  Serial.print(V_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Amp_threshold, DEC);
-  Serial.println();
-  Serial.print(activation_threshold, DEC);
-  Serial.println();
+  serial.println();
+  serial.print(frame_counter, DEC);
+  serial.println();
+  serial.print(V_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Amp_threshold, DEC);
+  serial.println();
+  serial.print(activation_threshold, DEC);
+  serial.println();
 
-  Serial.print("**** Erase all ****");
-  Serial.println();
+  serial.print("**** Erase all ****");
+  serial.println();
   fram1.erase_All();
 
-  Serial.print("Reading erased parameters from FRAM");
-  Serial.println();
+  serial.print("Reading erased parameters from FRAM");
+  serial.println();
   fram1.read(0x00, &buffer[0], 2);
   fram1.read(0x02, &buffer[2], 4);
   fram1.read(0x06, &buffer[6], 8);
@@ -183,28 +186,28 @@ void loop()
   memcpy(&T_Amp_threshold, &buffer[22], 2);
   memcpy(&activation_threshold, &buffer[24], 2);
 
-  Serial.print("**** Erased FRAM Parameters ****");
-  Serial.println();
-  Serial.print(reset_count, DEC);
-  Serial.println();
-  Serial.print(uptime_total, DEC);
-  Serial.println();
+  serial.print("**** Erased FRAM Parameters ****");
+  serial.println();
+  serial.print(reset_count, DEC);
+  serial.println();
+  serial.print(uptime_total, DEC);
+  serial.println();
   for (int i = 0; i < 8; i++)
   {
-    Serial.print(init_time[i], DEC);
-    Serial.print(" ");
+    serial.print(init_time[i], DEC);
+    serial.print(" ");
   }
-  Serial.println();
-  Serial.print(frame_counter, DEC);
-  Serial.println();
-  Serial.print(V_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Amp_threshold, DEC);
-  Serial.println();
-  Serial.print(activation_threshold, DEC);
-  Serial.println();
+  serial.println();
+  serial.print(frame_counter, DEC);
+  serial.println();
+  serial.print(V_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Amp_threshold, DEC);
+  serial.println();
+  serial.print(activation_threshold, DEC);
+  serial.println();
 
   reset_count = 10;
   uptime_total = 33600;
@@ -231,8 +234,8 @@ void loop()
   memcpy(&buffer[22], &T_Amp_threshold, 2);
   memcpy(&buffer[24], &activation_threshold, 2);
 
-  Serial.print("Writing parameters to FRAM");
-  Serial.println();
+  serial.print("Writing parameters to FRAM");
+  serial.println();
   fram1.write(0x00, &buffer[0], 2);
   fram1.write(0x02, &buffer[2], 4);
   fram1.write(0x06, &buffer[6], 8);
@@ -242,8 +245,8 @@ void loop()
   fram1.write(0x22, &buffer[22], 2);
   fram1.write(0x24, &buffer[24], 2);
 
-  Serial.print("Reading parameters from FRAM");
-  Serial.println();
+  serial.print("Reading parameters from FRAM");
+  serial.println();
   fram1.read(0x00, &buffer[0], 2);
   fram1.read(0x02, &buffer[2], 4);
   fram1.read(0x06, &buffer[6], 8);
@@ -262,28 +265,28 @@ void loop()
   memcpy(&T_Amp_threshold, &buffer[22], 2);
   memcpy(&activation_threshold, &buffer[24], 2);
 
-  Serial.print("**** FRAM Parameters ****");
-  Serial.println();
-  Serial.print(reset_count, DEC);
-  Serial.println();
-  Serial.print(uptime_total, DEC);
-  Serial.println();
+  serial.print("**** FRAM Parameters ****");
+  serial.println();
+  serial.print(reset_count, DEC);
+  serial.println();
+  serial.print(uptime_total, DEC);
+  serial.println();
   for (int i = 0; i < 8; i++)
   {
-    Serial.print(init_time[i], DEC);
-    Serial.print(" ");
+    serial.print(init_time[i], DEC);
+    serial.print(" ");
   }
-  Serial.println();
-  Serial.print(frame_counter, DEC);
-  Serial.println();
-  Serial.print(V_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Batt_threshold, DEC);
-  Serial.println();
-  Serial.print(T_Amp_threshold, DEC);
-  Serial.println();
-  Serial.print(activation_threshold, DEC);
-  Serial.println();
+  serial.println();
+  serial.print(frame_counter, DEC);
+  serial.println();
+  serial.print(V_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Batt_threshold, DEC);
+  serial.println();
+  serial.print(T_Amp_threshold, DEC);
+  serial.println();
+  serial.print(activation_threshold, DEC);
+  serial.println();
 
   while (1);
 }

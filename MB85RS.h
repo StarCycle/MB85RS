@@ -15,9 +15,8 @@
 #ifndef MB85RS_H
 #define MB85RS_H
 
-#include <Energia.h>
 #include <driverlib.h>
-#include <DSPI.h>
+#include "DSPI.h"
 
 // Status register
 #define WPEN       0x80
@@ -39,10 +38,11 @@ class MB85RS
 {
 protected:
 	DSPI &line;
-	unsigned char CSpin;
+    unsigned long CSPort;
+    unsigned long CSPin;
 	
 public:
-	MB85RS(DSPI &spi, unsigned char pin);
+	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin );
 	virtual ~MB85RS( ) {};
 		
 	void init();
@@ -50,8 +50,8 @@ public:
 	void write_Disable();
 	unsigned char read_Status();
 	void write_Status(char val);
-	void read(unsigned int address, void *Ptr, unsigned int size);
-	void write(unsigned int address, void *Ptr, unsigned int size);
+	void read(unsigned int address, unsigned char *Ptr, unsigned int size);
+	void write(unsigned int address, unsigned char *Ptr, unsigned int size);
 	void erase_All();
 	
 private:
