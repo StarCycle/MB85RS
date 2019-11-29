@@ -46,6 +46,7 @@ public:
 	virtual ~MB85RS( ) {};
 		
 	void init();
+	bool ping();
 	void write_Enable();
 	void write_Disable();
 	unsigned char read_Status();

@@ -14,7 +14,9 @@
  
 #include "MB85RS.h"
   
-/**  MB85RS class creator function
+/**
+ *
+ *   MB85RS class creator function
  *
  *   Parameters:
  *   DSPI &spi             SPI object
@@ -24,7 +26,9 @@
 MB85RS::MB85RS(DSPI &spi, unsigned long csPort, unsigned long csPin):
         line(spi), CSPort(csPort), CSPin(csPin) {}
 
-/**  Initialize MB85RS
+/**
+ *
+ *   Initialize MB85RS
  *	 Both memory blocks and status register are initialize to be unprotected
  *
  */
@@ -35,7 +39,23 @@ void MB85RS::init()
 	write_Disable();	
 }
 
-/**  Enable data writing in MB85RS memory space
+/**
+ *
+ *   Verify if the MB85RS is present
+ *
+ *   Returns:
+ *   bool                  true     device found
+ *                         false    device not found
+ *
+ */
+bool MB85RS::ping()
+{
+    return !(read_Status() & 0x01);
+}
+
+/**
+ *
+ *   Enable data writing in MB85RS memory space
  *
  */
 void MB85RS::write_Enable()
@@ -45,7 +65,9 @@ void MB85RS::write_Enable()
     MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
 }
 
-/**  Disable data writing in MB85RS memory space
+/**
+ *
+ *   Disable data writing in MB85RS memory space
  *
  */
 void MB85RS::write_Disable()
@@ -55,7 +77,9 @@ void MB85RS::write_Disable()
 	MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
 }
 
-/**  Returns content of MB85RS status register
+/**
+ *
+ *   Returns content of MB85RS status register
  *
  *	 Returns
  * 	 unsigned char         status register value
@@ -70,7 +94,9 @@ unsigned char MB85RS::read_Status()
 	return ret;
 }
 
-/**  writes in MB85RS status register
+/**
+ *
+ *   writes in MB85RS status register
  *
  *	 Parameter
  * 	 char val         status register value
@@ -85,7 +111,9 @@ void MB85RS::write_Status(char val)
 	write_Disable();
 }
 
-/**  reads sequential memory locations to buffer
+/**
+ *
+ *   reads sequential memory locations to buffer
  *
  *	 Parameters
  * 	 unsigned int address       start address
@@ -108,7 +136,9 @@ void MB85RS::read(unsigned int address, unsigned char *buffer, unsigned int size
 	MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
 }
 
-/**  writes to sequential memory locations from buffer
+/**
+ *
+ *   writes to sequential memory locations from buffer
  *
  *	 Parameters
  * 	 unsigned int address       start address
@@ -133,8 +163,9 @@ void MB85RS::write(unsigned int address, unsigned char *buffer, unsigned int siz
 	write_Disable();
 }
 
-
-/**  flush whole data memory and resets status register
+/**
+ *
+ *   flush whole data memory and resets status register
  *
  */
 void MB85RS::erase_All()
