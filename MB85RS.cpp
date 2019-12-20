@@ -31,17 +31,23 @@ MB85RS::MB85RS(DSPI &spi, unsigned long csPort, unsigned long csPin):
  *   Initialize MB85RS
  *	 Both memory blocks and status register are initialize to be unprotected
  *
+ *   Parameters
+ *
+ *   Returns
+ *
  */
 void MB85RS::init()
 {	
     MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
     MAP_GPIO_setAsOutputPin( CSPort, CSPin );
-	write_Disable();	
+    writeProtect();
 }
 
 /**
  *
  *   Verify if the MB85RS is present
+ *
+ *   Parameters
  *
  *   Returns:
  *   bool                  true     device found
@@ -50,15 +56,41 @@ void MB85RS::init()
  */
 bool MB85RS::ping()
 {
-    return !(read_Status() & 0x01);
+    return !(getStatus() & 0x01);
 }
 
 /**
  *
- *   Enable data writing in MB85RS memory space
+ *   Get device ID
+ *
+ *   Parameters
+ *
+ *   Returns
  *
  */
-void MB85RS::write_Enable()
+unsigned long MB85RS::getID()
+{
+    unsigned long ret;
+    MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
+    line.transfer(RDID);
+    ((unsigned char *)&ret)[3] = line.transfer(0);
+    ((unsigned char *)&ret)[2] = line.transfer(0);
+    ((unsigned char *)&ret)[1] = line.transfer(0);
+    ((unsigned char *)&ret)[0] = line.transfer(0);
+    MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
+    return ret;
+}
+
+/**
+ *
+ *   Enable memory writing
+ *
+ *   Parameters
+ *
+ *   Returns
+ *
+ */
+void MB85RS::writeEnable()
 {	
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WREN); 
@@ -67,10 +99,14 @@ void MB85RS::write_Enable()
 
 /**
  *
- *   Disable data writing in MB85RS memory space
+ *   Disable memory writing
+ *
+ *   Parameters
+ *
+ *   Returns
  *
  */
-void MB85RS::write_Disable()
+void MB85RS::writeProtect()
 {	
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WRDI); 
@@ -79,12 +115,14 @@ void MB85RS::write_Disable()
 
 /**
  *
- *   Returns content of MB85RS status register
+ *   Return MB85RS status register
+ *
+ *   Parameters
  *
  *	 Returns
  * 	 unsigned char         status register value
  */
-unsigned char MB85RS::read_Status()
+unsigned char MB85RS::getStatus()
 {	
 	unsigned char ret;
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
@@ -96,29 +134,34 @@ unsigned char MB85RS::read_Status()
 
 /**
  *
- *   writes in MB85RS status register
+ *   Set MB85RS status register
  *
- *	 Parameter
+ *   Parameters
  * 	 char val         status register value
+ *
+ * 	 Returns:
+ *
  */
-void MB85RS::write_Status(char val)
+void MB85RS::setStatus(char val)
 {
-	write_Enable();
+	writeEnable();
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WRSR);
 	line.transfer(val);
 	MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
-	write_Disable();
+	writeProtect();
 }
 
 /**
  *
- *   reads sequential memory locations to buffer
+ *    Reads memory to buffer
  *
- *	 Parameters
- * 	 unsigned int address       start address
- *   char *buffer				buffer
- *   unsigned int size			total number of bytes
+ *	  Parameters
+ * 	  unsigned int address       start address
+ *    char *buffer				buffer
+ *    unsigned int size			total number of bytes
+ *
+ *    Returns:
  *
  */
 void MB85RS::read(unsigned int address, unsigned char *buffer, unsigned int size)
@@ -138,17 +181,19 @@ void MB85RS::read(unsigned int address, unsigned char *buffer, unsigned int size
 
 /**
  *
- *   writes to sequential memory locations from buffer
+ *    Writes memory from buffer
  *
- *	 Parameters
- * 	 unsigned int address       start address
- *   char *buffer				buffer
- *   unsigned int size			total number of bytes
+ *	  Parameters
+ * 	  unsigned int address       start address
+ *    char *buffer				buffer
+ *    unsigned int size			total number of bytes
+ *
+ *    Returns:
  *
  */
 void MB85RS::write(unsigned int address, unsigned char *buffer, unsigned int size)
 {
-	write_Enable();
+	writeEnable();
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WRITE);
 	line.transfer((char)(address >> 8));
@@ -160,28 +205,35 @@ void MB85RS::write(unsigned int address, unsigned char *buffer, unsigned int siz
 	}
 	
 	MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
-	write_Disable();
+	writeProtect();
 }
 
 /**
  *
- *   flush whole data memory and resets status register
+ *   Erase the full memory and reset status register
+ *
+ *   Parameters:
+ *
+ *   Returns:
  *
  */
-void MB85RS::erase_All()
+void MB85RS::erase()
 {  
-	write_Status(0x00);
-	write_Enable();
+	setStatus(0x00);
+	writeEnable();
   
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WRITE);
 	line.transfer(0x00);
 	line.transfer(0x00);
   
+	// TODO: get memory size from chip ID, for now size is hardcoded
 	for(unsigned int i = 0; i <= MEM_SIZE; i++)
 	{
 		line.transfer(0x00);
 	}
 	
 	MAP_GPIO_setOutputHighOnPin( CSPort, CSPin );
+
+	writeProtect();
 }

@@ -31,6 +31,8 @@
 #define WRSR       0x01
 #define READ       0x03
 #define WRITE      0x02
+#define RDID       0x9F
+#define SLEEP      0xB9
 
 #define MEM_SIZE   0x8000	//Memory size
 
@@ -46,14 +48,15 @@ public:
 	virtual ~MB85RS( ) {};
 		
 	void init();
+	unsigned long getID();
 	bool ping();
-	void write_Enable();
-	void write_Disable();
-	unsigned char read_Status();
-	void write_Status(char val);
+	void writeEnable();
+	void writeProtect();
+	unsigned char getStatus();
+	void setStatus(char val);
 	void read(unsigned int address, unsigned char *Ptr, unsigned int size);
 	void write(unsigned int address, unsigned char *Ptr, unsigned int size);
-	void erase_All();
+	void erase();
 	
 private:
 
