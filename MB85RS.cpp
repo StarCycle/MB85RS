@@ -23,8 +23,8 @@
  *	 unsigned char pin	   Chip select GPIO pin
  *
  */
-MB85RS::MB85RS(DSPI &spi, unsigned long csPort, unsigned long csPin):
-        line(spi), CSPort(csPort), CSPin(csPin) {}
+MB85RS::MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, bool threeByteAddressing):
+        line(spi), CSPort(csPort), CSPin(csPin), threeByteAddress(threeByteAddressing) {}
 
 /**
  *
@@ -168,8 +168,12 @@ void MB85RS::read(unsigned int address, unsigned char *buffer, unsigned int size
 {  
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(READ);
-	line.transfer((char)(address >> 8));
-	line.transfer((char)address);
+	if(threeByteAddress){
+	    line.transfer((char)(address >> 16));
+	}
+    line.transfer((char)(address >> 8));
+    line.transfer((char)(address));
+
   
 	for (unsigned int i = 0; i < size; i++)
 	{
@@ -196,8 +200,11 @@ void MB85RS::write(unsigned int address, unsigned char *buffer, unsigned int siz
 	writeEnable();
 	MAP_GPIO_setOutputLowOnPin( CSPort, CSPin );
 	line.transfer(WRITE);
+	if(threeByteAddress){
+        line.transfer((char)(address >> 16));
+    }
 	line.transfer((char)(address >> 8));
-	line.transfer((char)address);
+	line.transfer((char)(address));
 
 	for (unsigned int i = 0; i < size; i++)
 	{

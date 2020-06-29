@@ -42,9 +42,12 @@ protected:
 	DSPI &line;
     unsigned long CSPort;
     unsigned long CSPin;
+
+    //Compatibility workaround
+    bool threeByteAddress;
 	
 public:
-	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin );
+	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, bool threeByteAddressing = false);
 	virtual ~MB85RS( ) {};
 		
 	void init();
