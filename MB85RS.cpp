@@ -23,8 +23,8 @@
  *	 unsigned char pin	   Chip select GPIO pin
  *
  */
-MB85RS::MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, bool threeByteAddressing):
-        line(spi), CSPort(csPort), CSPin(csPin), threeByteAddress(threeByteAddressing) {}
+MB85RS::MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, Device dev):
+        line(spi), CSPort(csPort), CSPin(csPin), device(dev) {}
 
 /**
  *
@@ -56,7 +56,19 @@ void MB85RS::init()
  */
 bool MB85RS::ping()
 {
-    return !(getStatus() & 0x01);
+    unsigned long id = getID();
+
+    switch(device)
+    {
+        case MB85RS256A:
+            return id == 0xFFFFFFFF;
+
+        case MB85RS1MT:
+            return id == 0x047F2703;
+
+        default:
+            return false;
+    }
 }
 
 /**

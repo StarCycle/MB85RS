@@ -1,7 +1,7 @@
 /* Code written by Chia Jiun Wei @ 24 Jul 2017
  * <J.W.Chia@tudelft.nl>
  
- * MB85RS256A: a library to provide high level APIs to interface  
+ * MB85RS: a library to provide high level APIs to interface
  * with the Fujitsu FRAM. It is possible to use this library in
  * Energia (the Arduino port for MSP microcontrollers) or in 
  * other toolchains.
@@ -38,16 +38,10 @@
 
 class MB85RS
 {
-protected:
-	DSPI &line;
-    unsigned long CSPort;
-    unsigned long CSPin;
-
-    //Compatibility workaround
-    bool threeByteAddress;
-	
 public:
-	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, bool threeByteAddressing = false);
+    enum Device { MB85RS256A, MB85RS1MT };
+
+	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, Device dev);
 	virtual ~MB85RS( ) {};
 		
 	void init();
@@ -60,7 +54,16 @@ public:
 	void read(unsigned int address, unsigned char *Ptr, unsigned int size);
 	void write(unsigned int address, unsigned char *Ptr, unsigned int size);
 	void erase();
-	
+
+protected:
+    DSPI &line;
+    unsigned long CSPort;
+    unsigned long CSPin;
+    Device device;
+
+    //Compatibility workaround
+    bool threeByteAddress;
+
 private:
 
 };
