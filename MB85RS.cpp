@@ -24,7 +24,19 @@
  *
  */
 MB85RS::MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, Device dev):
-        line(spi), CSPort(csPort), CSPin(csPin), device(dev) {}
+        line(spi), CSPort(csPort), CSPin(csPin), device(dev)
+{
+    switch(device)
+    {
+        case MB85RS1MT:
+            threeByteAddress = true;
+            break;
+
+        default:
+            threeByteAddress = false;
+            break;
+    }
+}
 
 /**
  *
