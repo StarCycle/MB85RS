@@ -28,6 +28,7 @@ MB85RS::MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, Device dev
 {
     switch(device)
     {
+        case CY15B104QN50SXI:
         case MB85RS1MT:
             threeByteAddress = true;
             break;
@@ -72,6 +73,9 @@ bool MB85RS::ping()
 
     switch(device)
     {
+        case CY15B104QN50SXI:
+            return id == 0x2CC27F;
+
         case MB85RS256A:
             return id == 0xFFFFFFFF;
 

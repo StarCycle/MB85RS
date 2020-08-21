@@ -39,7 +39,7 @@
 class MB85RS
 {
 public:
-    enum Device { MB85RS256A, MB85RS1MT };
+    enum Device { MB85RS256A, MB85RS1MT, CY15B104QN50SXI};
 
 	MB85RS( DSPI &spi, unsigned long csPort, unsigned long csPin, Device dev);
 	virtual ~MB85RS( ) {};
