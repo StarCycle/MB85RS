@@ -34,7 +34,8 @@
 #define RDID       0x9F
 #define SLEEP      0xB9
 
-#define MEM_SIZE   0x8000	//Memory size
+#define MEM_SIZE_SMALL   0x8000	//Memory size
+#define MEM_SIZE_BIG     0x20000
 
 class MB85RS
 {

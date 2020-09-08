@@ -263,7 +263,17 @@ void MB85RS::erase()
 	line.transfer(0x00);
   
 	// TODO: get memory size from chip ID, for now size is hardcoded
-	for(unsigned int i = 0; i <= MEM_SIZE; i++)
+	int memSize = 0;
+	switch(device){
+	case Device::MB85RS256A:
+	    memSize = MEM_SIZE_SMALL;
+	    break;
+	case Device::MB85RS1MT:
+	case Device::CY15B104QN50SXI:
+	    memSize = MEM_SIZE_BIG;
+	    break;
+	}
+	for(unsigned int i = 0; i <= memSize; i++)
 	{
 		line.transfer(0x00);
 	}
