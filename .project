@@ -5,6 +5,7 @@
 	<projects>
 		<project>DSPI</project>
 		<project>DWire</project>
+		<project>CodeCoverage</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
